@@ -26,7 +26,7 @@ if (SpeechRecognition) {
   });
 
   function handleCommand(command) {
-    if (command.includes("open goog;le")) {
+    if (command.includes("open google")) {
       window.location.href = "https://www.google.com/";
     } else if (command.includes("change background color")) {
       document.body.style.backgroundColor = "lightblue";
