@@ -4,10 +4,11 @@ const SpeechRecognition =
 if (SpeechRecognition) {
   const recognition = new SpeechRecognition();
   recognition.lang = "en-US";
+  recognition.interimResults = true;
 
   recognition.onresult = function (event) {
     const query = event.results[0][0].transcript.toLowerCase();
-    console.log("User's query: ", query);
+    console.log("User's query:", query);
 
     const resultDiv = document.getElementById("result");
     if (resultDiv) {
@@ -19,6 +20,7 @@ if (SpeechRecognition) {
 
   recognition.onerror = function (event) {
     console.error("Speech recognition error:", event.error);
+    alert("Error occurred during speech recognition.");
   };
 
   document.getElementById("start").addEventListener("click", function () {
@@ -36,8 +38,31 @@ if (SpeechRecognition) {
       const searchQuery = command.replace("search", "").trim();
       window.open(`https://www.google.com/search?q=${searchQuery}`, "_blank");
     } else {
-      console.log("Command not recognized");
+      getChatbotResponse(command);
     }
+  }
+
+  function getChatbotResponse(command) {
+    const resultDiv = document.getElementById("result");
+
+    resultDiv.innerHTML = `Chatbot is thinking...`;
+
+    fetch("http://localhost:5000/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ user_prompt: command }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        const response = data.response || "Sorry, I didn't understand that.";
+        resultDiv.innerHTML = `Chatbot says: ${response}`;
+      })
+      .catch((error) => {
+        console.error("Error with chatbot API:", error);
+        resultDiv.innerHTML = "Error communicating with chatbot.";
+      });
   }
 } else {
   console.error("Speech Recognition is not supported in this browser.");
